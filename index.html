@@ -43,6 +43,52 @@
             margin-left: 500px;
             color: #333;
         }
+        .visitor-counter {
+            text-align: center;
+            margin: 40px auto 60px;
+            padding: 30px;
+            max-width: 400px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+        }
+
+        .visitor-counter p {
+            margin: 0 0 16px;
+            font-size: 22px;
+            color: #333;
+        }
+
+        #click-btn {
+            padding: 12px 32px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #4a90d9;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        #click-btn:hover {
+            background-color: #357abd;
+        }
+
+        #click-btn:active {
+            transform: scale(0.97);
+        }
+
+        #click-count {
+            margin-top: 16px;
+            font-size: 20px;
+            color: #555;
+        }
+
+        #click-count span {
+            font-weight: bold;
+            color: #4a90d9;
+            font-size: 24px;
+        }
     </style>
 </head>
 <body>
@@ -113,5 +159,32 @@
         <li> This is the initial version of the website, which will be updated periodically.</li>
     </ul>
 </div>
+    <div class="visitor-counter">
+    <p>Do u like it ? Click！</p>
+    <button id="click-btn">Visit Record</button>
+    <p id="click-count">Total number of clicks：<span>0</span> 次</p>
+</div>
+
+<script>
+    // 用 localStorage 保存点击次数（刷新页面后不会丢失）
+    const STORAGE_KEY = 'ziqizhang_website_clicks';
+    const countSpan = document.querySelector('#click-count span');
+    const clickBtn = document.getElementById('click-btn');
+
+    // 页面加载时显示已保存的次数
+    function showCount() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        countSpan.textContent = saved ? parseInt(saved, 10) : 0;
+    }
+
+    // 点击按钮：次数 +1 并保存
+    clickBtn.addEventListener('click', function () {
+        const current = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+        const next = current + 1;
+        localStorage.setItem(STORAGE_KEY, next);
+        countSpan.textContent = next;
+    });
+
+    showCount();
 </body>
 </html>
