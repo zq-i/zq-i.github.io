@@ -164,27 +164,68 @@
     <button id="click-btn">Visit Record</button>
     <p id="click-count">Total number of clicks：<span>0</span> 次</p>
 </div>
-
 <script>
-    // 用 localStorage 保存点击次数（刷新页面后不会丢失）
-    const STORAGE_KEY = 'ziqizhang_website_clicks';
+    const SUPABASE_URL = 'https://dwkcluzmyuzcxhslsjbw.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_pSPaeBlj7lQqtkqAfwe1WQ_nKnIUOUv';
+
     const countSpan = document.querySelector('#click-count span');
     const clickBtn = document.getElementById('click-btn');
 
-    // 页面加载时显示已保存的次数
-    function showCount() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        countSpan.textContent = saved ? parseInt(saved, 10) : 0;
+    // 获取当前总点击次数
+    async function showCount() {
+        try {
+            const response = await fetch(
+                `${SUPABASE_URL}/rest/v1/website_stats?id=eq.1&select=clicks`,
+                {
+                    headers: {
+                        'apikey': SUPABASE_KEY
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.length > 0) {
+                countSpan.textContent = data[0].clicks;
+            }
+        } catch (error) {
+            console.error('获取点击次数失败：', error);
+        }
     }
 
-    // 点击按钮：次数 +1 并保存
-    clickBtn.addEventListener('click', function () {
-        const current = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
-        const next = current + 1;
-        localStorage.setItem(STORAGE_KEY, next);
-        countSpan.textContent = next;
+    // 点击按钮：云端次数 +1
+    clickBtn.addEventListener('click', async function () {
+
+        clickBtn.disabled = true;
+
+        try {
+            const response = await fetch(
+                `${SUPABASE_URL}/rest/v1/rpc/increment_clicks`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+                countSpan.textContent = data;
+            } else {
+                console.error('点击失败：', data);
+            }
+
+        } catch (error) {
+            console.error('网络错误：', error);
+        }
+
+        clickBtn.disabled = false;
     });
 
+    // 页面打开时读取总次数
     showCount();
 </script>
 </body>
